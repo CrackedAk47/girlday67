@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>For You 💌</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #1a0b12 0%, #2c1220 40%, #1a0b12 100%);
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow-x: hidden;
+      padding: 20px 16px;
+      position: relative;
+    }
+
+    .hearts {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .heart {
+      position: absolute;
+      opacity: 0.15;
+      animation: float 12s linear infinite;
+    }
+
+    @keyframes float {
+      0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10%  { opacity: 0.2; }
+      90%  { opacity: 0.15; }
+      100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      color: #f8c8d8;
+      font-size: clamp(1.5rem, 6vw, 1.9rem);
+      font-weight: 500;
+      margin-bottom: 1.8rem;
+      z-index: 10;
+      text-align: center;
+    }
+
+    /* ===== ENVELOPE ===== */
+    .envelope-wrapper {
+      position: relative;
+      width: min(340px, 92vw);
+      height: 220px;
+      cursor: pointer;
+      z-index: 10;
+      transition: transform 0.3s ease;
+    }
+
+    .envelope-wrapper:hover {
+      transform: scale(1.02);
+    }
+
+    .envelope {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #f5e6e0;
+      border-radius: 8px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+      overflow: visible;
+    }
+
+    .envelope-body {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to top, #e8d5cc, #f5e6e0);
+      border-radius: 8px;
+      z-index: 2;
+    }
+
+    .envelope-body::before,
+    .envelope-body::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+    }
+
+    .envelope-body::before {
+      left: 0;
+      border-width: 0 0 110px 170px;
+      border-color: transparent transparent #e0cfc5 transparent;
+    }
+
+    .envelope-body::after {
+      right: 0;
+      border-width: 0 170px 110px 0;
+      border-color: transparent transparent #d9c5ba transparent;
+    }
+
+    .flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 115px;
+      background: linear-gradient(to bottom, #f0ddd4, #e8d0c5);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      transform-origin: top;
+      transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 5;
+    }
+
+    .seal {
+      position: absolute;
+      top: 65px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 50px;
+      background: radial-gradient(circle at 35% 35%, #e85a7a, #c23a5a);
+      border-radius: 50%;
+      z-index: 6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(194, 58, 90, 0.45);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      font-size: 22px;
+      color: #fff;
+    }
+
+    /* THE LETTER */
+    .letter {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      right: 14px;
+      height: 0;
+      background: #fffaf7;
+      border-radius: 6px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+      z-index: 4;
+      overflow: hidden;
+      transition: height 0.75s cubic-bezier(0.4, 0, 0.2, 1) 0.1s;
+    }
+
+    .letter-content {
+      padding: 22px 18px 20px;
+      height: 100%;
+      overflow-y: auto;
+      opacity: 0;
+      transition: opacity 0.4s ease 0.45s;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .letter-content h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: #5c2a3a;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .letter-content p {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.98rem;
+      line-height: 1.55;
+      color: #4a2c35;
+      font-style: italic;
+      white-space: pre-line;
+    }
+
+    .letter-content .signature {
+      margin-top: 18px;
+      text-align: right;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      color: #8b4558;
+      font-weight: 500;
+    }
+
+    /* OPEN STATE */
+    .envelope-wrapper.open .flap {
+      transform: rotateX(180deg);
+    }
+
+    .envelope-wrapper.open .seal {
+      opacity: 0;
+      transform: translateX(-50%) scale(0.5);
+    }
+
+    .envelope-wrapper.open .letter {
+      height: min(420px, 70vh); /* much taller + responsive */
+    }
+
+    .envelope-wrapper.open .letter-content {
+      opacity: 1;
+    }
+
+    .hint {
+      margin-top: 1.8rem;
+      color: #c99aaa;
+      font-size: 0.95rem;
+      z-index: 10;
+      transition: opacity 0.3s ease;
+      text-align: center;
+    }
+
+    .envelope-wrapper.open \~ .hint {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Make sure letter is above everything when open */
+    .envelope-wrapper.open .letter {
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hearts" id="hearts"></div>
+
+  <h1>Happy Girlfriend’s Day 💕</h1>
+
+  <div class="envelope-wrapper" id="envelope">
+    <div class="envelope">
+      <div class="flap"></div>
+      <div class="seal">♥</div>
+
+      <div class="letter">
+        <div class="letter-content">
+          <h2>Happy girlfriend's day!!</h2>
+          <p>It has been almost five years since we've been together and I wouldn't change a thing about you.. You're still the most beautiful woman I've ever met and every moment with you feels like a gift.. Whenever we're on call, I always try to say something completely stupid to try and make you laugh or giggle cause it's the most adorable thing I've ever heard in my entire life. You're also the strongest woman I've ever met because you've dealt with me at my lowest and always did your best to make me understand your thoughts and you're also PHYSICALLY strong cause I would totally let you beat my ass.. You'll always be my first choice no matter what because you've genuinely been my motivation to go on in life. I want to keep going forward, get rich, hopefully move in with you one day, and just worship you everyday.. I will never give up on someone who has always had hope in me when even I DIDN'T HAVE HOPE IN MYSELF.. I love you so so SOO FUCKING MUCH and I ALWAYS WILL NO MATTER WHAT AND I HOPE WE HAVE A FUTURE TOGETHERRR!!</p>
+          <div class="signature">— Your loving husband</div>
+        </div>
+      </div>
+
+      <div class="envelope-body"></div>
+    </div>
+  </div>
+
+  <p class="hint">Click the envelope to open</p>
+
+  <script>
+    // Floating hearts
+    const heartsContainer = document.getElementById('hearts');
+    for (let i = 0; i < 15; i++) {
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+      heart.textContent = ['♥', '♡', '❤'][Math.floor(Math.random() * 3)];
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.animationDuration = (9 + Math.random() * 10) + 's';
+      heart.style.animationDelay = Math.random() * 8 + 's';
+      heart.style.fontSize = (13 + Math.random() * 15) + 'px';
+      heartsContainer.appendChild(heart);
+    }
+
+    const envelope = document.getElementById('envelope');
+    let isOpen = false;
+
+    envelope.addEventListener('click', () => {
+      isOpen = !isOpen;
+      envelope.classList.toggle('open', isOpen);
+    });
+  </script>
+</body>
+</html>
